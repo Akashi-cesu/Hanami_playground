@@ -15,7 +15,7 @@ class NN(object):
         self.biases = [torch.randn(y, 1, device=self.device, dtype=torch.float64)
                        for y in y_list]
         self.weights = [torch.randn(y, x, device=self.device, dtype=torch.float64)
-                       for (y, x) in list(zip(y_list, x_list))]
+                        for (y, x) in list(zip(y_list, x_list))]
 
         # for x in self.biases:
         #     print(f" biases shape is {x.shape}")
@@ -29,9 +29,9 @@ class NN(object):
             a = torch.sigmoid(z)
         return a
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta,
+    def sgd(self, training_data, epochs, mini_batch_size, eta,
             test_data=None):
-
+        n_test = 0
         if test_data:
             n_test = len(test_data)
             # print(f"test len = {n_test}")
@@ -98,8 +98,8 @@ class NN(object):
             activations.append(activation)
 
         delta = torch.mul(
-            self.cost_derivative(activations[-1],
-                                 torch.tensor(y, device=self.device, dtype=torch.float64)),
+            cost_derivative(activations[-1],
+                            torch.tensor(y, device=self.device, dtype=torch.float64)),
             sigmoid_prime(zs[-1])
         )
         nabla_b[-1] = delta
@@ -121,15 +121,12 @@ class NN(object):
 
         return nabla_b, nabla_w
 
-    def cost_derivative(self, output_activations: torch.tensor, y:torch.tensor):
-        return torch.sub(output_activations, y)
-
     def evaluate(self, test_data):
         test_results = [
             (torch.argmax(self.feedforward(x)), y)
             for (x, y) in test_data
         ]
-        return sum(int (x == y) for (x, y) in test_results)
+        return sum(int(x == y) for (x, y) in test_results)
 
 
 def sigmoid_prime(z: torch.tensor):
@@ -138,3 +135,7 @@ def sigmoid_prime(z: torch.tensor):
         torch.sub(1, torch.sigmoid(z))
     )
     return prime
+
+
+def cost_derivative(output_activations: torch.tensor, y: torch.tensor):
+    return torch.sub(output_activations, y)
